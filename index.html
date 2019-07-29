@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://code.highcharts.com/highcharts.js"></script>
+        <script src="https://code.highcharts.com/modules/series-label.js"></script>
+        <script src="https://code.highcharts.com/modules/exporting.js"></script>
+        <script src="https://code.highcharts.com/modules/export-data.js"></script>
+        <link href="https://fonts.googleapis.com/css?family=Pacifico&display=swap" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="bit.css">
+    </head>
+    <body background="https://techcrunch.com/wp-content/uploads/2014/12/bitcoin-falling.png">
+        <h1><center>Live Bitcoin Ticker</center></h1>
+        <div id="container" style="min-width: 310px; height: 400px; max-width: 800px; margin: auto; position: absolute;top: 0; right: 0;bottom: 0; left: 0"></div>
+    </body>
+        <script>
+            var chart = Highcharts.chart('container', {
+            chart: {
+                type: 'spline',
+                scrollablePlotArea: {
+                    minWidth: 600,
+                    scrollPositionX: 1
+                }
+            },
+            title: {
+                text: 'Bitcoin Ticker',
+            },
+            subtitle: {
+                text: 'Bitcoin rate in USD, EURO, GBP',
+            },
+            xAxis: {
+                type: 'datetime',
+            },
+            yAxis: {
+                title: {
+                    text: 'Rate'
+                },
+                minorGridLineWidth: 0,
+                gridLineWidth: 0,
+                alternateGridColor: null,
+            },
+            tooltip: {
+                valueSuffix: ' rate'
+            },
+            plotOptions: {
+                spline: {
+                    lineWidth: 4,
+                    states: {
+                        hover: {
+                            lineWidth: 4
+                        }
+                    },
+                    marker: {
+                        enabled: true
+                    },
+                }
+            },
+            series: [{
+                name: 'USD',
+                data: []
+
+            }, {
+                name: 'EURO',
+                data: []
+            },{
+                name: 'GBP',
+                data: []
+            }],
+            navigation: {
+                menuItemStyle: {
+                    fontSize: '10px'
+                }
+            }
+        });
+        setInterval(() =>{
+            let xhr = new XMLHttpRequest;
+            xhr.addEventListener('load', function(){
+                var response = JSON.parse(this.responseText)
+                var dataUSD = [(new Date).getTime(), response.bpi.USD.rate_float];
+                var dataEURO = [(new Date).getTime(), response.bpi.EUR.rate_float];
+                var dataGBP = [(new Date).getTime(), response.bpi.GBP.rate_float];
+                chart.series[0].addPoint(dataUSD)
+                chart.series[1].addPoint(dataEURO)
+                chart.series[2].addPoint(dataGBP)
+            })
+            xhr.open('GET', 'https://api.coindesk.com/v1/bpi/currentprice.json')
+            xhr.send();
+        }, 4000)
+    </script>
+</html>
